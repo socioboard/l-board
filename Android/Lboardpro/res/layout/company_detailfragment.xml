@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<RelativeLayout android:id="@+id/companydetail_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/company_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="Globussoft"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <com.socioboard.lbroadpro.ui.AccountImageView
+        android:id="@+id/company_pic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/company_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/account_image"
+        app:maskDrawable="@drawable/circle_mask" />
+
+    <TextView
+        android:id="@+id/company_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_pic"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:text="Globussoft Technologies is a CMM – Level 3, Nasscom Certified, ISO 9001-2000 Certified, Microsoft Gold Certified Software Products Company. Started in 2009 and headquartered at Bhilai , India, we are a global software products company providing technology products across a wide range of verticals.Globussoft builds innovative and cutting edge technology products for the digital marketing industry. With over 4500 customers in more than 50 countries across 5 continents and over 2 million users who consume our services via the web/mobile and cloud aka SAAS, Globussoft is emerging as a key player in the Global Digital Marketing Software Solutions Space."
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/company_employeerange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_description"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:text="Employee Range"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/company_employeerate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_employeerange"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:text="200-500"
+        android:textColor="@android:color/black"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/company_founded"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_employeerate"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:text="Founded in"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/company_foundedin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_founded"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:text="1990"
+        android:textColor="@android:color/black"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/company_followers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_foundedin"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:text="No of followers"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/company_follow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_followers"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:text="2203"
+        android:textColor="@android:color/black"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/company_website"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_follow"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:text="Website url"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/company_websiteurl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_website"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"       
+        android:paddingBottom="15dp"
+        android:text="http://www.globussoft.com"
+        android:textColor="@android:color/black"
+        android:textSize="13sp" />
+
+</RelativeLayout>
+</ScrollView>

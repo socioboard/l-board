@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/cp_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:text="Tent-O-logy"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/cp_jobdescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cp_name"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="8dp"
+        android:text="STAFF SITE RELIABILITY ENGINEER The Site Reliability Engineering (SRE) organization at LinkedIn fills the mission-critical role of ensuring that our complex, web-scale systems are healthy, monitored, automated, and designed to scale. As the development arm of SRE, the Infrastructure team is responsible for designing, building, operating, and maintaining crucial infrastructure which enables SRE to "
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/cp_titletext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15sp"
+        android:text="Job Title"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/cp_jobdescription"
+        android:textSize="14sp" />
+    
+    <TextView android:id="@+id/cp_jobtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cp_titletext"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="15dp"
+        android:text="Site Engineer"
+        android:textColor="@android:color/black"
+        />
+
+      <TextView
+        android:id="@+id/cp_joblocationtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15sp"
+        android:text="Job Location"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/cp_jobtitle"
+        android:textSize="14sp" />
+    
+       <TextView android:id="@+id/cp_joblocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cp_joblocationtext"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="15dp"
+        android:text="Belgaum"
+        android:textColor="@android:color/black"
+        />
+
+       <ImageView
+           android:id="@+id/apply_nowbtn"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/cp_joblocation"
+           android:layout_centerHorizontal="true"
+           android:layout_marginTop="15dp"
+           android:paddingBottom="10dp"
+           android:layout_marginBottom="10dp"
+           android:src="@drawable/apply_now" />
+
+</RelativeLayout>

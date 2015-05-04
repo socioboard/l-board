@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">lboardPro</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello World!</string>
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
+    <string name="loading">Loading</string>
+
+    <plurals name="numberOfNewArticles">
+        <item quantity="one">%d new</item>
+        <item quantity="other">%d new</item>
+    </plurals>
+
+    <string-array name="drawer_titles">
+        <item>Profile</item>
+        <item>Company Profiles</item>
+        <item>Company Updates</item>
+        <item>Share</item>
+    </string-array>
+
+    <array name="drawer_icons">
+        <item>@drawable/ic_userprofile</item>
+        <item>@drawable/ic_companyprofile</item>
+        <item>@drawable/ic_companyupdate</item>
+        <item>@drawable/ic_share</item>
+    </array>
+
+    <string-array name="footer_titles">
+        <item>Settings</item>
+        <item>Feedback</item>
+    </string-array>
+
+    <array name="footer_icons">
+        <item>@drawable/ic_settings</item>
+        <item>@drawable/ic_help</item>
+    </array>
+
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+
+</resources>

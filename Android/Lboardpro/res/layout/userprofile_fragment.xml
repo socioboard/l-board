@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white" >
+
+    <RelativeLayout
+        android:id="@+id/profile_mainrellay"
+        android:layout_width="match_parent"       
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        >
+        
+    <RelativeLayout
+        android:id="@+id/relativeLayoutProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/dialog_bottom_holo_light" >
+
+        <com.socioboard.lbroadpro.ui.AccountImageView
+            android:id="@+id/user_profile_pic"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/account_image"
+            app:maskDrawable="@drawable/circle_mask" />
+
+        <TextView
+            android:id="@+id/profile_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/user_profile_pic"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="USer Name"
+            android:textColor="@android:color/black"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/profile_userheadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/profile_username"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:text="Developer at Google"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rel_userdetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativeLayoutProfile"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/dialog_full_holo_light" >
+
+        <TextView
+            android:id="@+id/textViewTitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:text="First Name"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/TextViewfirstName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_below="@+id/textViewTitle1"
+            android:layout_marginTop="7dp"
+            android:text="First Name**" />
+
+        <TextView
+            android:id="@+id/textViewTitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TextViewfirstName"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Last Name"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/TextViewlastname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewTitle2"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="7dp"
+            android:hint="Last Name**" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/textViewTitle3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TextViewlastname"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Email Address"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/TextViewemialaddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewTitle3"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:paddingBottom="5dp"
+            android:layout_marginTop="7dp"
+            android:hint="email@address.com" >
+        </TextView>
+
+       <!--  <TextView
+            android:id="@+id/textViewTitle4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TextViewemialaddress"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Degree"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/TextViewdegree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewTitle4"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="7dp"
+            android:hint="Degree**" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/textViewTitle5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TextViewdegree"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:text="School Name"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/TextViewuniversity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewTitle5"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="7dp"
+            android:paddingBottom="10dp"
+            android:hint="University/school**" >
+        </TextView> -->
+    </RelativeLayout>
+    
+    <TextView android:id="@+id/skillstext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Skills"
+        android:layout_centerHorizontal="true"
+        android:textSize="15sp"
+        android:layout_below="@+id/rel_userdetails"
+        android:textColor="@android:color/black"/>
+    
+    <ListView android:id="@+id/skillslistview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_full_holo_light" 
+        android:layout_below="@+id/skillstext"></ListView>
+    
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:layout_centerVertical="true" />
+ 
+</RelativeLayout>
