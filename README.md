@@ -9,7 +9,7 @@ Features:
 > **User details:** See details of user about his skills, email-Id
 ![](http://i.imgur.com/VMIGCai.png)    
 
-> **Following companies details:** You can now get all the companies detail whom your are following on LinkedIn        ![](http://i.imgur.com/eOQGlA5.png)    
+> **Following companies details:** You can now get all the companies detail whom your are following on LinkedIn        ![](http://i.imgur.com/aVgdRmn.png)    
 
 > **Following companies Updates:** You can now get all the companies updates with latest jobs posted by companies ![](http://i.imgur.com/0EVGtWW.png)    
 
