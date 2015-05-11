@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,8 +21,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.socioboard.lbroadpro.ConnectionDetector;
 import com.socioboard.lbroadpro.R;
 import com.socioboard.lbroadpro.adapter.Company_Profileadapter;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
@@ -39,14 +47,45 @@ public class Company_Updates extends Fragment{
 	ArrayList<CompanyDetails> modelclass = new ArrayList<CompanyDetails>();
 	public static String company_id;
 	ListView companylistview;
+	RelativeLayout mainlayout;
+	ProgressBar progressbar;
+	ConnectionDetector cd;
+	Dialog dialog;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
 		View rootView = inflater.inflate(R.layout.company_updateid, container, false);
-		new GetCompaniesID().execute();
+		
+		cd= new ConnectionDetector(getActivity());
+		
     	companylistview = (ListView) rootView.findViewById(R.id.company_list);
+    	mainlayout  =(RelativeLayout) rootView.findViewById(R.id.mainrellay1);
+    	progressbar = (ProgressBar) rootView.findViewById(R.id.progressbar);
+    	
+    	mainlayout.setVisibility(View.GONE);
+    	progressbar.setVisibility(View.VISIBLE);
+    	
+    	if(cd.isConnectingToInternet())
+    	{
+    		if(modelclass.size()>0)
+        	{
+        		mainlayout.setVisibility(View.VISIBLE);
+            	progressbar.setVisibility(View.GONE);
+        		Company_Profile.iscompanyprofile=false;
+    			Company_Profileadapter adapter = new Company_Profileadapter(getActivity(), modelclass);
+    			companylistview.setAdapter(adapter);
+        	}else
+        	{
+        		new GetCompaniesID().execute();
+        	}
+    	}else
+    	{
+    		progressbar.setVisibility(View.GONE);
+    		showCustomDialog();
+    	}
+    	
 		return rootView;
 	}
 	
@@ -148,15 +187,50 @@ public class Company_Updates extends Fragment{
 			
 			if(result&&modelclass.size()>0)
 			{
+				try {
+					mainlayout.setVisibility(View.VISIBLE);
+		        	progressbar.setVisibility(View.GONE);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				Company_Profile.iscompanyprofile=false;
 				Company_Profileadapter adapter = new Company_Profileadapter(getActivity(), modelclass);
 				companylistview.setAdapter(adapter);
 			}else
 			{
+				try {
+					mainlayout.setVisibility(View.VISIBLE);
+		        	progressbar.setVisibility(View.GONE);
+		        	Toast.makeText(getActivity(), "Error in Response !!", Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				
 			}
 		}
     	
     }
+	
+	 protected void showCustomDialog() {
+
+		    dialog = new Dialog(getActivity(), android.R.style.Theme_Translucent);
+		    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		    dialog.setCancelable(false);
+		    dialog.setContentView(R.layout.noconnection_dialog);
+
+		    ImageView exitcancel;
+		    exitcancel = (ImageView)dialog.findViewById(R.id.internetcancel);
+		     
+		    exitcancel.setOnClickListener(new OnClickListener() {
+		     
+		     @Override
+		     public void onClick(View v) 
+		     {
+		      dialog.dismiss();
+		      //getActivity().finish();
+		     }
+		    });
+		    dialog.show();
+	}
 
 }

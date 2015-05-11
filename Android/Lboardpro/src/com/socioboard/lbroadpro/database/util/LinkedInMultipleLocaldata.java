@@ -85,7 +85,7 @@ public class LinkedInMultipleLocaldata extends SQLiteOpenHelper {
 		ModelUserDatas modelUserDatas = null;
 
 		String query = "SELECT * FROM " + table_name + " WHERE " + KEY_UserID
-				+ " = '" + userId + "'";
+				+ " = '" + userId+ "'";
 
 		SQLiteDatabase database = this.getReadableDatabase();
 
@@ -108,8 +108,6 @@ public class LinkedInMultipleLocaldata extends SQLiteOpenHelper {
 	}
 
 	public void getAllUsersData() {
-
-		
 
 		String query = "SELECT * FROM " + table_name;
 
@@ -163,6 +161,20 @@ public class LinkedInMultipleLocaldata extends SQLiteOpenHelper {
 
 		database.execSQL(updateQuery);
 	}
+	
+	public void updateUserAccessToken(String accesstoken, String userId)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		String Updatequery = "UPDATE " + table_name + " SET "
+				+ KEY_UserAcessToken + " = '" +accesstoken + "' " + " WHERE "
+				+KEY_UserID + " = '" + userId + "'" ; 
+		
+		System.out.println("query ****** "+Updatequery);
+
+		db.execSQL(Updatequery);
+		
+	}
 
 	public void deleteAllRows() {
 
@@ -173,12 +185,12 @@ public class LinkedInMultipleLocaldata extends SQLiteOpenHelper {
 		database.execSQL(query);
 	}
 
-	public void deleteThisUserData(String userID) {
+	public void deleteThisUserData(String userID) 
+	{
 
 		SQLiteDatabase database = this.getWritableDatabase();
 
-		String query = "DELETE FROM " + table_name + " WHERE " + KEY_UserID
-				+ " = " + userID;
+		String query = "DELETE FROM " + table_name + " WHERE " + KEY_UserID+ " = '" + userID+"'";
 		System.out.println(query);
 		database.execSQL(query);
 	}

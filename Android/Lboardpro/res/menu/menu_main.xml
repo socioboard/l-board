@@ -7,7 +7,7 @@
        android:id="@+id/action_settings"
         android:title=""
         android:showAsAction="never"
-        android:icon="@drawable/ic_apps"
+        android:icon="@drawable/ic_help"
         android:visible="false"
        />
 

@@ -7,8 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.socioboard.lbroadpro.MainActivity;
 import com.socioboard.lbroadpro.R;
 import com.socioboard.lbroadpro.common.CommonUtilss;
-import com.socioboard.lbroadpro.database.util.LinkedinManyLocalData;
+import com.socioboard.lbroadpro.database.util.LinkedInMultipleLocaldata;
 import com.socioboard.lbroadpro.database.util.ModelUserDatas;
 
 public class AccountAdapter extends BaseAdapter
@@ -63,14 +63,11 @@ public class AccountAdapter extends BaseAdapter
 
         ImageView profilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
         ImageView settingspic = (ImageView) convertView.findViewById(R.id.settings);
-        
         TextView text = (TextView) convertView.findViewById(R.id.user_name);
 
-      
-       profilePic.setImageBitmap(utilss.getBitmapFromString(navDrawerItems.get(position).getUserimage()));
+        profilePic.setImageBitmap(utilss.getBitmapFromString(navDrawerItems.get(position).getUserimage()));
         settingspic.setImageResource(R.drawable.ic_settings);
         text.setText(navDrawerItems.get(position).getUsername());
-        
 
         settingspic.setOnClickListener(new OnClickListener() {
 			
@@ -87,9 +84,10 @@ public class AccountAdapter extends BaseAdapter
 			        public void onClick(DialogInterface dialog, int which) {
 			           
 			        	
-			        	if (navDrawerItems.size()>1) {
-			        		LinkedinManyLocalData dbdata = new LinkedinManyLocalData(context);
-
+			        	if (navDrawerItems.size()>1) 
+			        	{
+			        		
+			        		LinkedInMultipleLocaldata dbdata = new LinkedInMultipleLocaldata(context);
 				        	dbdata.deleteThisUserData(navDrawerItems.get(position).getUserid());
 				        	dbdata.getAllUsersData();
 				            

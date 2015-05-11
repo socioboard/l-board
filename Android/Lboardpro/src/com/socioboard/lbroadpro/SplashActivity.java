@@ -21,6 +21,14 @@ import com.socioboard.lbroadpro.database.util.ModelUserDatas;
 
 public class SplashActivity extends Activity {
 
+	/*
+	 * check user already have stored token in local db or not , 
+	 * if there then redirect to feed fragment(Main activity)
+	 * or redirect to login screen
+	 * 
+	 * 
+	 */
+	
 	LinkedInMultipleLocaldata LinkedInmultipleLocalData;
 	SharedPreferences preferences;
 	String keyhash;
@@ -33,8 +41,8 @@ public class SplashActivity extends Activity {
 		setContentView(R.layout.activity_splash);
 
 		// Storing KeyHash in local variable
-		keyhash = getKeyHash(getApplicationContext(),"com.socioboard.inbroadpro");
-		
+		keyhash = getKeyHash(getApplicationContext(),"com.socioboard.lbroadpro");
+			
 		// Creating local variable for Database
 		LinkedInmultipleLocalData = new LinkedInMultipleLocaldata(getApplicationContext());
 		LinkedInmultipleLocalData.CreateTable();
@@ -80,8 +88,11 @@ public class SplashActivity extends Activity {
 						}else
 						{
 							Map.Entry<String,ModelUserDatas> entry=MainSingleTon.userdetails.entrySet().iterator().next();
+							
 							MainSingleTon.userid = entry.getKey();
+							
 							ModelUserDatas value=entry.getValue();
+							
 							MainSingleTon.username=value.getUsername();
 							MainSingleTon.userimage=value.getUserimage();
 							MainSingleTon.accesstoken=value.getUserAcessToken();

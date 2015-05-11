@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,9 +21,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.socioboard.lbroadpro.ConnectionDetector;
 import com.socioboard.lbroadpro.R;
 import com.socioboard.lbroadpro.adapter.Company_Profileadapter;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
@@ -42,14 +49,42 @@ public class Company_Profile extends Fragment {
 	public static Boolean iscompanyprofile;
 
 	ListView companylistview;
-
+	ProgressBar progressBar;
+	RelativeLayout mainlayout;
+	ConnectionDetector cd;
+	Dialog dialog;
+	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	View rootView = inflater.inflate(R.layout.fragment_companyprofile, container, false);
 
-    	new GetCompaniesID().execute();
-    	
+    	cd = new ConnectionDetector(getActivity());
     	companylistview = (ListView) rootView.findViewById(R.id.companylist);
+    	progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+    	mainlayout =(RelativeLayout) rootView.findViewById(R.id.mainrellay);
+    	
+    	mainlayout.setVisibility(View.GONE);
+    	progressBar.setVisibility(View.VISIBLE);
+    	
+    	if(cd.isConnectingToInternet())
+    	{
+    		if(modelclass.size()>0)
+        	{
+        		mainlayout.setVisibility(View.VISIBLE);
+            	progressBar.setVisibility(View.GONE);
+        		iscompanyprofile=true;
+    			Company_Profileadapter adapter = new Company_Profileadapter(getActivity(), modelclass);
+    			companylistview.setAdapter(adapter);
+        	}else
+        	{
+        		new GetCompaniesID().execute();
+        	}
+    	}else
+    	{
+    		progressBar.setVisibility(View.GONE);
+    		showCustomDialog();
+    	}
+    	
     	
     	return rootView;
     }
@@ -85,7 +120,8 @@ public class Company_Profile extends Fragment {
 		                case 200: { 
 		                    // everything is fine, handle the response
 		                    stringResponse = EntityUtils.toString(response.getEntity()); 
-		                    
+		            
+		                    System.out.println("response "+stringResponse);
 		                    try {
 		                    	
 		                    JSONObject json = new JSONObject(stringResponse);
@@ -151,17 +187,54 @@ public class Company_Profile extends Fragment {
 			
 			if(result&&modelclass.size()>0)
 			{
-				iscompanyprofile=true;
-				Company_Profileadapter adapter = new Company_Profileadapter(getActivity(), modelclass);
-				companylistview.setAdapter(adapter);
+				try {
+					mainlayout.setVisibility(View.VISIBLE);
+			    	progressBar.setVisibility(View.GONE);
+			    	iscompanyprofile=true;
+					Company_Profileadapter adapter = new Company_Profileadapter(getActivity(), modelclass);
+					companylistview.setAdapter(adapter);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
 			}else
 			{
-				Toast.makeText(getActivity(), "Error in Response !!", Toast.LENGTH_SHORT).show();
+				try {
+					mainlayout.setVisibility(View.GONE);
+					progressBar.setVisibility(View.GONE);
+					Toast.makeText(getActivity(), "Error in Response !!", Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
 			}
 			super.onPostExecute(result);
 		}
     	
     }
 
+    protected void showCustomDialog() {
+
+		    dialog = new Dialog(getActivity(), android.R.style.Theme_Translucent);
+		    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		    dialog.setCancelable(false);
+		    dialog.setContentView(R.layout.noconnection_dialog);
+
+		    ImageView exitcancel;
+		    exitcancel = (ImageView)dialog.findViewById(R.id.internetcancel);
+		     
+		    exitcancel.setOnClickListener(new OnClickListener() {
+		     
+		     @Override
+		     public void onClick(View v) 
+		     {
+		      dialog.dismiss();
+		      //getActivity().finish();
+		     }
+		    });
+		    dialog.show();
+	}
 
 }

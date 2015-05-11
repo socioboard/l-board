@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.socioboard.lbroadpro.R;
@@ -47,8 +48,10 @@ public class Company_Update extends Fragment{
 	public static final String TAG_TITLE="title";
 
 	String company_id;
+	static String total ;
 	String jobUrl,jobLocation,jobDescription,companyName,jobTitle,updateTime;
 	ListView companyupdatelist;
+	TextView nodatatext;
 	ArrayList<CompanyUpdatemodel> companylist = new ArrayList<CompanyUpdatemodel>();
 	
 	@Override
@@ -58,10 +61,15 @@ public class Company_Update extends Fragment{
 		View rootView = inflater.inflate(R.layout.fragment_companyupdate, container, false);
 		
 		companyupdatelist = (ListView) rootView.findViewById(R.id.companyupdatelist);
+		nodatatext = (TextView) rootView.findViewById(R.id.nodatatext);
+		
+		nodatatext.setVisibility(View.GONE);
 		
 		company_id = Company_Updates.company_id;
 		
 		new GetCompanyUpdates().execute();
+		
+		total = "0";
 		
 		return rootView;
 	}
@@ -95,50 +103,66 @@ public class Company_Update extends Fragment{
 		                case 200: { 
 		                    // everything is fine, handle the response
 		                    stringResponse = EntityUtils.toString(response.getEntity()); 
-
+		                    
+		                    
 		                    try {
 			                    JSONObject json = new JSONObject(stringResponse);
-			                    
-			                    String str__count = json.getString(TAG__COUNT);
-			        			String str__start = json.getString(TAG__START);
-			        			String str__total = json.getString(TAG__TOTAL);
+			   
+			        			total = json.getString(TAG__TOTAL);
 
-			        			JSONArray values = json.getJSONArray(TAG_VALUES);
-			        			for(int values_i = 0; values_i < values.length(); values_i++){
+			        			System.out.println("totla "+total);
+			        			if(total.equals("0")||total.contains("0")||total=="0")
+			        			{
+			        				return true;
+			        			}else
+			        			{
+			        				JSONArray values = json.getJSONArray(TAG_VALUES);
+			        				
+				        			for(int values_i = 0; values_i < values.length(); values_i++){
+				        					
+				        				CompanyUpdatemodel listmodel = new CompanyUpdatemodel();
+				        				JSONObject values_obj=values.getJSONObject(values_i);
+				        				updateTime = values_obj.getString(TAG_TIMESTAMP);
+				        				
+				        				JSONObject updateContent_obj = values_obj.getJSONObject(TAG_UPDATECONTENT);
 			        					
-			        				CompanyUpdatemodel listmodel = new CompanyUpdatemodel();
-			        				JSONObject values_obj=values.getJSONObject(values_i);
-			        				
-			        				updateTime = values_obj.getString(TAG_TIMESTAMP);
-			        				
-			        				JSONObject updateContent_obj = values_obj.getJSONObject(TAG_UPDATECONTENT);
-		        					JSONObject companyJobUpdate_obj = updateContent_obj.getJSONObject(TAG_COMPANYJOBUPDATE);
-			        				JSONObject job_obj = companyJobUpdate_obj.getJSONObject(TAG_JOB);
-			        				
-			        				JSONObject siteJobRequest_obj = job_obj.getJSONObject(TAG_SITEJOBREQUEST);
-			        					jobUrl = siteJobRequest_obj.getString(TAG_URL);
-			        					listmodel.setJoburl(jobUrl);
-			        					
-			        				jobLocation = job_obj.getString(TAG_LOCATIONDESCRIPTION);
-			        				listmodel.setJoblocation(jobLocation);
-			        				
-			        				System.out.println("location "+jobLocation);
-			        				
-			        				jobDescription = job_obj.getString(TAG_DESCRIPTION);
-			        				listmodel.setJobdescription(jobDescription);
+				        				if(updateContent_obj.has(TAG_COMPANYJOBUPDATE))
+				        				{
+				        					System.out.println(" inside job");
+				        					
+				        					JSONObject companyJobUpdate_obj = updateContent_obj.getJSONObject(TAG_COMPANYJOBUPDATE);
+					        				JSONObject job_obj = companyJobUpdate_obj.getJSONObject(TAG_JOB);
+					        				
+					        				JSONObject siteJobRequest_obj = job_obj.getJSONObject(TAG_SITEJOBREQUEST);
+					        					jobUrl = siteJobRequest_obj.getString(TAG_URL);
+					        					listmodel.setJoburl(jobUrl);
+					        					
+					        				jobLocation = job_obj.getString(TAG_LOCATIONDESCRIPTION);
+					        				listmodel.setJoblocation(jobLocation);
+					        				
+					        				System.out.println("location "+jobLocation);
+					        				
+					        				jobDescription = job_obj.getString(TAG_DESCRIPTION);
+					        				listmodel.setJobdescription(jobDescription);
 
-			        				JSONObject company_obj = job_obj.getJSONObject(TAG_COMPANY);
-			        					companyName = company_obj.getString(TAG_NAME);
-			        					listmodel.setCompanyname(companyName);
-			        					
-			        				JSONObject position_obj = job_obj.getJSONObject(TAG_POSITION);
-			        					jobTitle = position_obj.getString(TAG_TITLE);
-			        					listmodel.setJobtitle(jobTitle);
-			        					
-			        					companylist.add(listmodel);
-			        			}
-			        			
-			        			return true;
+					        				JSONObject company_obj = job_obj.getJSONObject(TAG_COMPANY);
+					        					companyName = company_obj.getString(TAG_NAME);
+					        					listmodel.setCompanyname(companyName);
+					        					
+					        				JSONObject position_obj = job_obj.getJSONObject(TAG_POSITION);
+					        					jobTitle = position_obj.getString(TAG_TITLE);
+					        					listmodel.setJobtitle(jobTitle);
+					        					
+					        					companylist.add(listmodel);
+				        				}else
+				        				{
+				        					System.out.println("outside job");
+				        					total="0";
+				        				}
+				        				
+				        			}
+				        			return true;
+			        			}	        			
 							} catch (Exception e) {
 								// TODO: handle exception
 							}
@@ -182,8 +206,16 @@ public class Company_Update extends Fragment{
 			
 			if(result)
 			{
-				Company_Updateadapter adpater = new Company_Updateadapter(getActivity(), companylist);
-				companyupdatelist.setAdapter(adpater);
+				System.out.println("result ");
+				if(total.contains("0")||total.equals("0"))
+				{
+					nodatatext.setVisibility(View.VISIBLE);
+				}else
+				{
+					Company_Updateadapter adpater = new Company_Updateadapter(getActivity(), companylist);
+					companyupdatelist.setAdapter(adpater);
+				}
+				
 			}else
 			{
 				Toast.makeText(getActivity(), "Error in response", Toast.LENGTH_SHORT).show();

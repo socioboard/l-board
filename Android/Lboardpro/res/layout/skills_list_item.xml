@@ -9,7 +9,8 @@
         android:layout_height="wrap_content"
         android:text="androidpro"
         android:textColor="@android:color/black"
+        android:gravity="center_horizontal"
         android:layout_centerHorizontal="true"
-        android:textSize="14sp"/>
+        android:textSize="18sp"/>
 
 </RelativeLayout>

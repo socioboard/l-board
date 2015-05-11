@@ -12,6 +12,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,11 +20,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.socioboard.lbroadpro.ConnectionDetector;
 import com.socioboard.lbroadpro.R;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
 import com.socioboard.lbroadpro.models.CommentModel;
@@ -39,6 +42,10 @@ public class Share extends Fragment {
 	ListView commentlistview;
 	ArrayList<CommentModel> commentlist = new ArrayList<CommentModel>();
 	
+	ConnectionDetector cd;
+	
+	Dialog dialog;
+	
 	public static final String TAG_UPDATEKEY="updateKey";
 	public static final String TAG_UPDATEURL="updateUrl";
 	
@@ -47,6 +54,8 @@ public class Share extends Fragment {
 	{
 		
 		View rootView = inflater.inflate(R.layout.fragment_share, container,false);
+		
+		cd = new ConnectionDetector(getActivity());
 		comment = (EditText) rootView.findViewById(R.id.comment_text);
 		submit = (ImageView) rootView.findViewById(R.id.submit);
 		commentlistview = (ListView) rootView.findViewById(R.id.commentlist);
@@ -59,7 +68,14 @@ public class Share extends Fragment {
 				check=validateinputs();
 				if(check)
 				{
-					new SharePost().execute();
+					if(cd.isConnectingToInternet())
+					{
+						new SharePost().execute();
+					}else
+					{
+						showCustomDialog();
+					}
+					
 				}else
 				{
 					Toast.makeText(getActivity(),"Please Validate",Toast.LENGTH_SHORT).show();
@@ -216,4 +232,29 @@ public class Share extends Fragment {
 			}
 		}
 	}
+	
+	protected void showCustomDialog() {
+
+		 System.out.println("No internet dialog");
+		   
+		    dialog = new Dialog(getActivity(), android.R.style.Theme_Translucent);
+		    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		    dialog.setCancelable(false);
+		    dialog.setContentView(R.layout.noconnection_dialog);
+
+		    ImageView exitcancel;
+		    exitcancel = (ImageView)dialog.findViewById(R.id.internetcancel);
+		     
+		    exitcancel.setOnClickListener(new OnClickListener() {
+		     
+		     @Override
+		     public void onClick(View v) 
+		     {
+		      dialog.dismiss();
+		      //getActivity().finish();
+		     }
+		    });
+		    dialog.show();
+		   }
 }

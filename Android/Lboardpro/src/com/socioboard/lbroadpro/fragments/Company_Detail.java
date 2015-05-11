@@ -9,21 +9,24 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.socioboard.lbroadpro.ConnectionDetector;
 import com.socioboard.lbroadpro.R;
 import com.socioboard.lbroadpro.common.CommonUtilss;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
@@ -48,14 +51,24 @@ public class Company_Detail extends Fragment{
 	String name,description,websiteurl,numfollowers,foundedyear,employeerange,imageurl;
 	TextView cpname,cpdesc,cpweburl,cpfollowers,cpfounded,cpemployee;
 	ImageView cpimage;
+	
+	RelativeLayout progressellay,insiderellay;
+	
+	
 	CommonUtilss utills=new CommonUtilss();
 	private RelativeLayout companydetail_main;
+	ConnectionDetector cd;
+	Dialog dialog;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
 		View rootView = inflater.inflate(R.layout.company_detailfragment, container, false);
+		cd= new ConnectionDetector(getActivity());
+		
+		progressellay = (RelativeLayout) rootView.findViewById(R.id.progressellay);
+		insiderellay= (RelativeLayout) rootView.findViewById(R.id.insiderellay);
 		
 		companydetail_main = (RelativeLayout) rootView.findViewById(R.id.companydetail_main);
 		
@@ -69,7 +82,18 @@ public class Company_Detail extends Fragment{
 		cpfounded = (TextView) rootView.findViewById(R.id.company_foundedin);
 		cpimage = (ImageView) rootView.findViewById(R.id.company_pic);
 
-		new GetCompanyProfile().execute();
+		if(cd.isConnectingToInternet())
+    	{
+			progressellay.setVisibility(View.VISIBLE);
+			insiderellay.setVisibility(View.GONE);
+			new GetCompanyProfile().execute();
+    	}else
+    	{
+    		progressellay.setVisibility(View.GONE);
+			insiderellay.setVisibility(View.GONE);   		
+    		showCustomDialog();
+    	}
+		
 		return rootView;
 	}
 	
@@ -112,26 +136,21 @@ public class Company_Detail extends Fragment{
 				            try {
 								
 				            	JSONObject json = new JSONObject(stringResponse);
+				            	
 				            	JSONObject employeeCountRange_obj = json.getJSONObject(TAG_EMPLOYEECOUNTRANGE);
-				   			 	String str_code = employeeCountRange_obj.getString(TAG_CODE);
-				   			 	JSONObject specialties_obj = json.getJSONObject(TAG_SPECIALTIES);
-				   			 	String str__total = specialties_obj.getString(TAG__TOTAL);
-				   			 	String str_id = json.getString(TAG_ID);
-				   			 	JSONArray values = specialties_obj.getJSONArray(TAG_VALUES);
-				   			 	for(int values_i = 0; values_i < values.length(); values_i++){
-				   			 		String str_values=values.getString(values_i);
-				   			 	}
-				   		
+				
 				   			 	employeerange = employeeCountRange_obj.getString(TAG_NAME);
+				   			 	System.out.println("range "+employeerange);
 				   			 	websiteurl= json.getString(TAG_WEBSITEURL);
+				   			 System.out.println("weburl  "+websiteurl);
 				   			 	numfollowers = json.getString(TAG_NUMFOLLOWERS);
 				   			 	description = json.getString(TAG_DESCRIPTION);
+				   			 System.out.println("desp "+description);
 				   			 	foundedyear = json.getString(TAG_FOUNDEDYEAR);
 				   			 	String imagebyte = utills.getImageBytearray(json.getString(TAG_LOGOURL));
 				   			 	imageurl = imagebyte;
 				   			 	name = json.getString(TAG_JSON_NAME);
-				   			 	
-				   			 	
+				   			 				   			 	
 								return true;
 								
 							} catch (JSONException e){
@@ -169,7 +188,7 @@ public class Company_Detail extends Fragment{
 				e.printStackTrace();
 			}
 	        
-			return null;
+			return false;
 		}
 	
 		@Override
@@ -177,8 +196,11 @@ public class Company_Detail extends Fragment{
 		{
 			if(result)
 			{
-				companydetail_main.setVisibility(View.VISIBLE);
+				progressellay.setVisibility(View.GONE);
+				insiderellay.setVisibility(View.VISIBLE);
 				
+				companydetail_main.setVisibility(View.VISIBLE);
+			
 				cpdesc.setText(description);
 				cpemployee.setText(employeerange);
 				cpfollowers.setText(numfollowers);
@@ -187,12 +209,40 @@ public class Company_Detail extends Fragment{
 				cpweburl.setText(websiteurl);
 				
 				cpimage.setImageBitmap(utills.getBitmapFromString(imageurl));			
+			}else
+			{
+				try {
+					progressellay.setVisibility(View.GONE);
+					insiderellay.setVisibility(View.GONE);
+					Toast.makeText(getActivity(), "Error in Response !!", Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			super.onPostExecute(result);
-			
-			
 		}
-    	
     }
+	
+	protected void showCustomDialog() {
+
+	    dialog = new Dialog(getActivity(), android.R.style.Theme_Translucent);
+	    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	    dialog.setCancelable(false);
+	    dialog.setContentView(R.layout.noconnection_dialog);
+
+	    ImageView exitcancel;
+	    exitcancel = (ImageView)dialog.findViewById(R.id.internetcancel);
+	     
+	    exitcancel.setOnClickListener(new OnClickListener() {
+	     
+	     @Override
+	     public void onClick(View v) 
+	     {
+	      dialog.dismiss();
+	      //getActivity().finish();
+	     }
+	    });
+	    dialog.show();
+}
 
 }

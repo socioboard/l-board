@@ -13,8 +13,11 @@ public class MainSingleTon {
 	public static String userheadline;
 	public static ArrayList<String> useridlist=new ArrayList<String>();
 	public static String accesstoken;
+	public static String expiredaccesstoken;
 	public static String userimage;
+	
+	public static Boolean isUnauthorized=false;
+	
 	public static HashMap<String, ModelUserDatas> userdetails=new HashMap<String, ModelUserDatas>();
 	
-
 }

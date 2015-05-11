@@ -24,13 +24,9 @@ public class CommonUtilss {
 			    bitmap = BitmapFactory.decodeStream(url.openConnection()
 			      .getInputStream());
 			    
-			    
-			    
 			   } catch (MalformedURLException e1) {
-			    // TODO Auto-generated catch block
 			    e1.printStackTrace();
 			   } catch (IOException e) {
-			    // TODO Auto-generated catch block
 			    e.printStackTrace();
 			   }
 		
@@ -62,10 +58,8 @@ public class CommonUtilss {
 			    
 		        
 			   } catch (MalformedURLException e1) {
-			    // TODO Auto-generated catch block
 			    e1.printStackTrace();
 			   } catch (IOException e) {
-			    // TODO Auto-generated catch block
 			    e.printStackTrace();
 			   }
 		
@@ -81,8 +75,9 @@ public class CommonUtilss {
 			
 			imagearray=Base64.decode(imageEncodeString);
 			bitmap=BitmapFactory.decodeByteArray(imagearray, 0, imagearray.length);
+			return bitmap;
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		
 		return bitmap;

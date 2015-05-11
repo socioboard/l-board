@@ -9,13 +9,14 @@
         android:id="@+id/profile_mainrellay"
         android:layout_width="match_parent"       
         android:layout_height="wrap_content"
+        android:visibility="visible"
         android:layout_alignParentTop="true"
         >
         
     <RelativeLayout
         android:id="@+id/relativeLayoutProfile"
         android:layout_width="wrap_content"
-        android:layout_height="160dp"
+        android:layout_height="150dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
@@ -26,7 +27,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="20dp"
             android:src="@drawable/account_image"
             app:maskDrawable="@drawable/circle_mask" />
 
@@ -67,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="First Name"
             android:textStyle="bold" />
 
@@ -81,7 +82,7 @@
             android:layout_marginTop="7dp"
             android:text="First Name**" />
 
-        <TextView
+       <!--  <TextView
             android:id="@+id/textViewTitle2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -100,13 +101,13 @@
             android:layout_marginRight="15dp"
             android:layout_marginTop="7dp"
             android:hint="Last Name**" >
-        </TextView>
+        </TextView> -->
 
         <TextView
             android:id="@+id/textViewTitle3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/TextViewlastname"
+            android:layout_below="@+id/TextViewfirstName"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
             android:text="Email Address"
@@ -168,30 +169,48 @@
         </TextView> -->
     </RelativeLayout>
     
+    <RelativeLayout android:id="@+id/skillsrellay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rel_userdetails">
+        
     <TextView android:id="@+id/skillstext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Skills"
         android:layout_centerHorizontal="true"
         android:textSize="15sp"
-        android:layout_below="@+id/rel_userdetails"
         android:textColor="@android:color/black"/>
     
     <ListView android:id="@+id/skillslistview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:dividerHeight="2dp"
         android:background="@drawable/dialog_full_holo_light" 
         android:layout_below="@+id/skillstext"></ListView>
     
     </RelativeLayout>
+    </RelativeLayout>
 
+    
     <ProgressBar
         android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleSmall"
+        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:visibility="gone"
         android:layout_centerVertical="true" />
+
+    <TextView
+        android:id="@+id/nofeeds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:text="Access token expired!! \n Re-login again to see your feeds"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
  
 </RelativeLayout>

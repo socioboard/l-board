@@ -56,8 +56,6 @@ public class LinkedinManyLocalData extends SQLiteOpenHelper {
 
 		database.execSQL(querry);
 
-		System.out.println("CreateTable " + querry);
-
 	}
 
 	public void addNewUserAccount(ModelUserDatas modelUserDatas) {
@@ -76,7 +74,6 @@ public class LinkedinManyLocalData extends SQLiteOpenHelper {
 
 		database.insert(table_name, null, contentValues);
 
-		System.out.println("addNewUserAccount " + contentValues);
 
 	}
 
@@ -159,8 +156,6 @@ public class LinkedinManyLocalData extends SQLiteOpenHelper {
 		+ KEY_UserHeadline + " = '" +modelUserDatas.getUserheadline() + "' " + " WHERE "
 		+ KEY_UserID + " = '" + modelUserDatas.getUserid() + "'";
 
-		System.out.println(updateQuery);
-
 		database.execSQL(updateQuery);
 	}
 
@@ -169,7 +164,6 @@ public class LinkedinManyLocalData extends SQLiteOpenHelper {
 		SQLiteDatabase database = this.getWritableDatabase();
 
 		String query = "DELETE FROM " + table_name;
-		System.out.println(query);
 		database.execSQL(query);
 	}
 
@@ -177,10 +171,10 @@ public class LinkedinManyLocalData extends SQLiteOpenHelper {
 
 		SQLiteDatabase database = this.getWritableDatabase();
 
-		String query = "DELETE FROM " + table_name + " WHERE " + KEY_UserID
+		database.delete(table_name, KEY_UserID+"="+userID, null);
+		/*String query = "DELETE FROM " + table_name + " WHERE " + KEY_UserID
 				+ " = " + userID;
-		System.out.println(query);
-		database.execSQL(query);
+		database.execSQL(query);*/
 	}
 
 }

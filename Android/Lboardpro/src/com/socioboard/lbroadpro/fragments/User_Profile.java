@@ -1,5 +1,6 @@
 package com.socioboard.lbroadpro.fragments;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -13,7 +14,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +27,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -28,10 +36,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.socioboard.lbroadpro.ConnectionDetector;
+import com.socioboard.lbroadpro.MainActivity;
 import com.socioboard.lbroadpro.R;
+import com.socioboard.lbroadpro.ReLoginAcivity;
 import com.socioboard.lbroadpro.adapter.Skills_Adapter;
+import com.socioboard.lbroadpro.common.Base64;
 import com.socioboard.lbroadpro.common.CommonUtilss;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
+import com.socioboard.lbroadpro.fragments.Share.SharePost;
 import com.socioboard.lbroadpro.models.SkillsModel;
 
 public class User_Profile extends Fragment {
@@ -70,17 +83,25 @@ public class User_Profile extends Fragment {
 	public static final String TAG_JSON_ID="id";
 	public static final String TAG_HEADLINE="headline";
 	
-	TextView username,userheadline,firstname,lastname,emailid;//,degree,school;
+	TextView username,userheadline,firstname,emailid;//,degree,school,lastname;
 	String nametext,headlinetext,lasttext,emailtext,degreetext,schooltext,userpictureurl;
 	CommonUtilss utilss=new CommonUtilss();
 	ImageView user_profilepic;
 
+	Dialog dialog;
+	static String accesstoken;
+	
+	ConnectionDetector cd;
+	
 	Bitmap userimage;
 	ProgressBar progressBar1;
 	Integer firstresponse=null;
 	RelativeLayout mainlayout;
 	ListView skillslv;
-	TextView skillstext;
+	TextView nofeedstext;
+	RelativeLayout skillsmain;
+	MainActivity mainActivity =null;
+	static int responseCode;
 	ArrayList<SkillsModel> skillslist = new ArrayList<SkillsModel>();
 	
 	@Override
@@ -89,11 +110,16 @@ public class User_Profile extends Fragment {
 		
 		View rootView = inflater.inflate(R.layout.userprofile_fragment, container, false);
 		
+		cd= new ConnectionDetector(getActivity());
+		
+		accesstoken = MainSingleTon.accesstoken;
+		
+		mainActivity = new MainActivity();
 		//Initialize layout parameters
 		username = (TextView) rootView.findViewById(R.id.profile_username);
 		userheadline = (TextView) rootView.findViewById(R.id.profile_userheadline);
 		firstname= (TextView) rootView.findViewById(R.id.TextViewfirstName);
-		lastname = (TextView) rootView.findViewById(R.id.TextViewlastname);
+		//lastname = (TextView) rootView.findViewById(R.id.TextViewlastname);
 		emailid = (TextView) rootView.findViewById(R.id.TextViewemialaddress);
 		/*degree = (TextView) rootView.findViewById(R.id.TextViewdegree);
 		school = (TextView) rootView.findViewById(R.id.TextViewuniversity);*/
@@ -101,13 +127,26 @@ public class User_Profile extends Fragment {
 		progressBar1 = (ProgressBar) rootView.findViewById(R.id.progressBar1);
 		mainlayout = (RelativeLayout) rootView.findViewById(R.id.profile_mainrellay);
 		skillslv = (ListView) rootView.findViewById(R.id.skillslistview);
-		skillstext = (TextView) rootView.findViewById(R.id.skillstext);
+		nofeedstext = (TextView) rootView.findViewById(R.id.nofeeds);
 		
-		progressBar1.setVisibility(View.VISIBLE);
+		skillsmain = (RelativeLayout) rootView.findViewById(R.id.skillsrellay);
+		
 		mainlayout.setVisibility(View.GONE);
+		skillsmain.setVisibility(View.GONE);
+		nofeedstext.setVisibility(View.GONE);
+		progressBar1.setVisibility(View.VISIBLE);
 		
-		//Getting User details in ASyncTask
-		new GetProfileDetails().execute();
+		
+		if(cd.isConnectingToInternet())
+		{
+			//Getting User details in ASyncTask
+			new GetProfileDetails().execute();
+		}else
+		{
+			progressBar1.setVisibility(View.GONE);
+			showCustomDialog();
+		}
+		
 		
 		return rootView;
 	}
@@ -121,7 +160,7 @@ public class User_Profile extends Fragment {
 	{
 		String stringResponse;
 		String str_pictureUrl;
-		String imageString;
+		String imageString;		
 		 
 		@Override
 		protected Boolean doInBackground(Void... params) {
@@ -135,6 +174,7 @@ public class User_Profile extends Fragment {
 		            		+ "?oauth2_access_token="+MainSingleTon.accesstoken+"&format=json";
 		            
 		            System.out.println("uri "+uri);
+		            
 		            HttpGet httpGet = new HttpGet(uri);
 		           
 					httpGet.addHeader("Connection", "Keep-Alive");
@@ -142,11 +182,11 @@ public class User_Profile extends Fragment {
 		            
 		            HttpResponse response = httpclient.execute(httpGet); // the client executes the request and gets a response
 		            
-		            int responseCode = response.getStatusLine().getStatusCode();  // check the response code
+		            responseCode = response.getStatusLine().getStatusCode();  // check the response code
 		            System.out.println("response code"+String.valueOf(responseCode));
 		            
 		            firstresponse = responseCode;
-		            
+		           
 		            switch (responseCode) {
 		                case 200: { 
 		                    // everything is fine, handle the response
@@ -158,18 +198,31 @@ public class User_Profile extends Fragment {
 		    				nametext = json.getString(TAG_FIRSTNAME);
 		    				lasttext = json.getString(TAG_LASTNAME);
 		    				emailtext = json.getString(TAG_EMAILADDRESS);
-		    				str_pictureUrl = json.getString(TAG_PICTUREURL);
 		    				
-		    				System.out.println("str_url "+str_pictureUrl);
+		    				if(json.has(TAG_PICTUREURL))
+		    				{
+		    					str_pictureUrl = json.getString(TAG_PICTUREURL);
+			    				
+			    				System.out.println("str_url "+str_pictureUrl);
+			    				
+			    				userpictureurl = utilss.getImageBytearray(str_pictureUrl);
+			    				
+			    				MainSingleTon.userimage=userpictureurl;
+		    				}else
+		    				{
+		    					Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.user_default);
+	        					ByteArrayOutputStream stream = new ByteArrayOutputStream();
+	        					bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+	        					imageString = Base64.encode(stream.toByteArray());
+			    				
+			    				MainSingleTon.userimage=imageString;
+		    				}
 		    				
-		    				userpictureurl = utilss.getImageBytearray(str_pictureUrl);
-		    				
-		    				MainSingleTon.userimage=userpictureurl;
 		    				
 		    				String str_json_id = json.getString(TAG_JSON_ID);
 			    			headlinetext = json.getString(TAG_HEADLINE);
 		    			
-			    			JSONObject educations_obj = json.getJSONObject(TAG_EDUCATIONS);
+			    			/*JSONObject educations_obj = json.getJSONObject(TAG_EDUCATIONS);
 		    				String str_educations_obj__total = educations_obj.getString(TAG_EDUCATIONS_OBJ__TOTAL);
 
 		    				System.out.println("Value of educations "+str_educations_obj__total);
@@ -188,26 +241,38 @@ public class User_Profile extends Fragment {
 
 			    					String str_schoolName = educations_obj_values_obj.getString(TAG_SCHOOLNAME);
 			    				}
-		    				}
+		    				}*/
 		    				
-		    				JSONObject skills_obj = json.getJSONObject(TAG_SKILLS);
-		    				String str__total = skills_obj.getString(TAG__TOTAL);
+			    			if(json.has(TAG_SKILLS))
+			    			{
+			    				System.out.println("skills");
+			    				JSONObject skills_obj = json.getJSONObject(TAG_SKILLS);
+			    				
+			    				JSONArray values = skills_obj.getJSONArray(TAG_VALUES);
+			    				
+			    				if(values.length()>0)
+			    				{
+			    					for(int values_i = 0; values_i < values.length(); values_i++)
+				    				{
+				    					SkillsModel model= new SkillsModel();
+				    					JSONObject values_obj=values.getJSONObject(values_i);
+				    					JSONObject skill_obj = values_obj.getJSONObject(TAG_SKILL);
 
-		    				JSONArray values = skills_obj.getJSONArray(TAG_VALUES);
-		    				for(int values_i = 0; values_i < values.length(); values_i++)
-		    				{
-		    					SkillsModel model= new SkillsModel();
-		    					JSONObject values_obj=values.getJSONObject(values_i);
-		    					JSONObject skill_obj = values_obj.getJSONObject(TAG_SKILL);
+				    					String str_name = skill_obj.getString(TAG_NAME);
+				    					model.setSkillname(str_name);
+				    					String str_id = values_obj.getString(TAG_ID);
+				    					
+				    					skillslist.add(model);
 
-		    					String str_name = skill_obj.getString(TAG_NAME);
-		    					model.setSkillname(str_name);
-		    					String str_id = values_obj.getString(TAG_ID);
-		    					
-		    					skillslist.add(model);
-
-		    				}
+				    				}
+			    				}
 			    			
+			    			}else if(!(json.equals(TAG_SKILLS)))
+			    			{
+			    				System.out.println("no skills");
+			    				skillslist.clear();
+			    			}
+		    				
 		    				return true;
 
 		    			} catch (JSONException e){
@@ -236,6 +301,19 @@ public class User_Profile extends Fragment {
 							}
 		                    break;
 		                }
+		                case 401: {
+		                    // you have no authorization to access that resource
+		                	System.out.println("server problems");
+		                	try {
+		                		
+		                		MainSingleTon.isUnauthorized=true;
+		                		
+								return false;
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+		                    break;
+		                }
 		            }
 		        } catch (ParseException ex) {
 		            // handle exception
@@ -254,11 +332,16 @@ public class User_Profile extends Fragment {
 		//Based on the Result, set all Valid Details
 		if(result)
 		{
-			progressBar1.setVisibility(View.GONE);
-			mainlayout.setVisibility(View.VISIBLE);
+			try {
+				progressBar1.setVisibility(View.GONE);
+				nofeedstext.setVisibility(View.GONE);
+				mainlayout.setVisibility(View.VISIBLE);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			
 			firstname.setText(nametext);
-			lastname.setText(lasttext);
 			userheadline.setText(headlinetext);
 			emailid.setText(emailtext);
 			username.setText(nametext);
@@ -266,23 +349,107 @@ public class User_Profile extends Fragment {
 			
 			if(skillslist.size()>0)
 			{
+				skillsmain.setVisibility(View.VISIBLE);
 				Skills_Adapter adapter = new Skills_Adapter(skillslist, getActivity());
 				skillslv.setAdapter(adapter);
 				
 			}else
 			{
-				skillstext.setVisibility(View.GONE);
-				Toast.makeText(getActivity(), "No Skills present !!", Toast.LENGTH_SHORT).show();
+				skillsmain.setVisibility(View.GONE);
+				try {
+					Toast.makeText(getActivity(), "No Skills present !!", Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		
 		}
 		//Error in Response, show toast message
 		else
 		{
-			Toast.makeText(getActivity(), "Error in response", Toast.LENGTH_SHORT).show();
+			if(MainSingleTon.isUnauthorized)
+			{
+				progressBar1.setVisibility(View.GONE);
+				nofeedstext.setVisibility(View.VISIBLE);
+				
+				try {
+					Toast.makeText(getActivity(), "Access token has expired!!", Toast.LENGTH_SHORT).show();
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				    builder.setTitle("Login Again to access your feeds!!");
+				    //builder.setMessage("Are you sure to remove this account?");
+
+				    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+				        public void onClick(DialogInterface dialog, int which) {
+				        	
+				        	redirecttomain();
+				        	dialog.dismiss();
+				        }
+				    });
+
+				    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+				        @Override
+				        public void onClick(DialogInterface dialog, int which) {
+				            // Do nothing
+				        	Toast.makeText(getActivity(), "You cannot access your feeds without Re-Login!!",Toast.LENGTH_LONG ).show();
+				            dialog.dismiss();
+				        }
+				    });
+
+				    AlertDialog alert = builder.create();
+				    alert.show();
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}else
+			{
+				progressBar1.setVisibility(View.GONE);
+				skillsmain.setVisibility(View.GONE);
+				mainlayout.setVisibility(View.GONE);
+				nofeedstext.setVisibility(View.VISIBLE);
+				try {
+					Toast.makeText(getActivity(), "Error in response", Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
+			}
 		}
 		
 	}
 	
+	}
+	
+	private void redirecttomain() {
+		
+		MainSingleTon.isUnauthorized=true;
+		Intent intent = new Intent(getActivity(), ReLoginAcivity.class);
+		getActivity().startActivity(intent);
+	}
+	
+	protected void showCustomDialog() {
+
+		 System.out.println("No internet dialog");
+		   
+		    dialog = new Dialog(getActivity(), android.R.style.Theme_Translucent);
+		    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		    dialog.setCancelable(false);
+		    dialog.setContentView(R.layout.noconnection_dialog);
+
+		    ImageView exitcancel;
+		    exitcancel = (ImageView)dialog.findViewById(R.id.internetcancel);
+		     
+		    exitcancel.setOnClickListener(new OnClickListener() {
+		     
+		     @Override
+		     public void onClick(View v) 
+		     {
+		      dialog.dismiss();
+		      //getActivity().finish();
+		     }
+		    });
+		    dialog.show();
 	}
 }

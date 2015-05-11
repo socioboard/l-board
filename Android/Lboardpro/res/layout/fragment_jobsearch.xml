@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:inputType="text"
         android:gravity="center_horizontal"
-        android:background="@drawable/search_bg"
+        android:background="@drawable/ic_help"
         android:layout_margin="10dp"
         />
 

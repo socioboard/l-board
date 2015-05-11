@@ -1,5 +1,6 @@
 package com.socioboard.lbroadpro;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -19,21 +20,25 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.socioboard.lbroadpro.common.ApplicationData;
+import com.socioboard.lbroadpro.common.Base64;
 import com.socioboard.lbroadpro.common.CommonUtilss;
-import com.socioboard.lbroadpro.database.util.LinkedinManyLocalData;
+import com.socioboard.lbroadpro.database.util.LinkedInMultipleLocaldata;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
 import com.socioboard.lbroadpro.database.util.ModelUserDatas;
 
@@ -41,10 +46,8 @@ public class WelcomeActivity extends Activity {
 	
 	Button connect;
 	CommonUtilss utilss;
-	LinkedinManyLocalData db;
+	LinkedInMultipleLocaldata db;
 	Boolean isalreadyadded = false;
-	
-	/*CONSTANT FOR THE AUTHORIZATION PROCESS*/
 
 	//This is the public api key of our application
 	private static final String API_KEY = ApplicationData.CONSUMER_KEY;
@@ -81,6 +84,7 @@ public class WelcomeActivity extends Activity {
 	public static final String TAG_HEADLINE="headline";
 	public static final String TAG__TOTAL="_total";
 	
+	static Boolean haspic=false;
 	public static String accesstokenis = "";
 	private WebView webView;
 	private ProgressDialog pd,pd1;
@@ -92,7 +96,7 @@ public class WelcomeActivity extends Activity {
 		setContentView(R.layout.activity_welcome);
 		
 		connect = (Button) findViewById(R.id.signin);
-		db = new LinkedinManyLocalData(getApplicationContext());
+		db = new LinkedInMultipleLocaldata(getApplicationContext());
 		utilss = new CommonUtilss();
 		
 		connect.setOnClickListener(new OnClickListener() {
@@ -111,6 +115,8 @@ public class WelcomeActivity extends Activity {
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCancelable(true);
 		dialog.setContentView(R.layout.webview_dialog);
+		
+		ImageView cancel_button = (ImageView) dialog.findViewById(R.id.cancel_button);
 		
 		 //get the webView from the layout
 	    webView = (WebView) dialog.findViewById(R.id.relogin_web_view);
@@ -158,6 +164,8 @@ public class WelcomeActivity extends Activity {
 	                String accessTokenUrl = getAccessTokenUrl(authorizationToken);
 	                //We make the request in a AsyncTask
 	                new PostRequestAsyncTask().execute(accessTokenUrl);
+	                
+	                dialog.dismiss();
 
 	            }else{
 	                //Default behaviour
@@ -167,6 +175,14 @@ public class WelcomeActivity extends Activity {
 	            return true;
 	        }
 	    });
+
+	    cancel_button.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+		});
 
 	    //Get the authorization Url
 	    String authUrl = getAuthorizationUrl();
@@ -182,7 +198,7 @@ public class WelcomeActivity extends Activity {
 
 	/**
 	 *  Set User Image While Login
-	 */
+	 *//*
 	class Setuserdata extends AsyncTask<String, Void, Void> {
 		String imageString;
 		@Override
@@ -196,7 +212,7 @@ public class WelcomeActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 		}
-	}
+	}*/
 	
 	/**
 	 * Method that generates the url for get the access token from the Service
@@ -312,6 +328,7 @@ public class WelcomeActivity extends Activity {
 		String stringResponse;
 		String str_pictureUrl;
 		String imageString;
+		String picUrl;
 		 
 		@Override
 	    protected void onPreExecute(){
@@ -349,32 +366,49 @@ public class WelcomeActivity extends Activity {
 		        				String str_firstName = json.getString(TAG_FIRSTNAME);
 		        				String str_lastName = json.getString(TAG_LASTNAME);
 		        				String str_emailAddress = json.getString(TAG_EMAILADDRESS);
-		        				String picUrl  = json.getString(TAG_PICTUREURL);
-		        				String str_headline = json.getString(TAG_HEADLINE);
 		        				String str_id = json.getString(TAG_ID);
+		        				String str_headline = json.getString(TAG_HEADLINE);
+		        				
+		        				if(json.has(TAG_PICTUREURL))
+		        				{
+		        					haspic=true;
+		        					picUrl  = json.getString(TAG_PICTUREURL);
+		        				}else
+		        				{
+		        					haspic=false;
+		        					Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.user_default);
+		        					ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		        					bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		        					imageString = Base64.encode(stream.toByteArray());
+		        				}
+		        				
+		        				
+		        				
 		        				
 		        				// Checking if user is already added
 		        				if(db.getUserData(str_id)!=null){
-		        					
 		        					isalreadyadded = true;
-		        					
 		        					return false;
-		        					
 		        				}else{
-		        					
 		        					isalreadyadded = false;
 		        					
 		        					ModelUserDatas datas = new ModelUserDatas();
 			        				datas.setUserAcessToken(accesstokenis);
 			        				datas.setUserid(str_id);
 			        				datas.setUsername(str_firstName);
-			        				datas.setUserimage(imageString);
-			        				
-			        				str_pictureUrl = picUrl;
-			        				imageString = utilss.getImageBytearray(str_pictureUrl);
 			        				datas.setLastname(str_lastName);
 			        				datas.setUseremailid(str_emailAddress);
 			        				datas.setUserheadline(str_headline);
+			        				
+			        				if(haspic)
+			        				{
+			        					str_pictureUrl = picUrl;
+				        				imageString = utilss.getImageBytearray(str_pictureUrl);
+				        				datas.setUserimage(imageString);
+			        				}else
+			        				{
+			        					datas.setUserimage(imageString);
+			        				}
 			        				
 		        					db.addNewUserAccount(datas);
 		        					

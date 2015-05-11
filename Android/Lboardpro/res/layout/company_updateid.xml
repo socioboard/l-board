@@ -4,6 +4,10 @@
     android:layout_height="match_parent"
     android:padding="16dp" >
 
+    <RelativeLayout android:id="@+id/mainrellay1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible">
     <TextView
         android:id="@+id/companies_following"
         android:layout_width="wrap_content"
@@ -17,7 +21,18 @@
         android:id="@+id/company_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:dividerHeight="2dp"
         android:layout_below="@+id/companies_following" >
     </ListView>
+</RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:layout_centerVertical="true" />
 
 </RelativeLayout>

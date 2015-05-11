@@ -1,5 +1,6 @@
 package com.socioboard.lbroadpro;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +26,8 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -32,7 +35,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -57,17 +59,15 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.socioboard.lbroadpro.adapter.AccountAdapter;
 import com.socioboard.lbroadpro.adapter.DrawerAdapter;
 import com.socioboard.lbroadpro.common.ApplicationData;
+import com.socioboard.lbroadpro.common.Base64;
 import com.socioboard.lbroadpro.common.CommonUtilss;
-import com.socioboard.lbroadpro.database.util.LinkedinManyLocalData;
+import com.socioboard.lbroadpro.database.util.LinkedInMultipleLocaldata;
 import com.socioboard.lbroadpro.database.util.MainSingleTon;
 import com.socioboard.lbroadpro.database.util.ModelUserDatas;
-import com.socioboard.lbroadpro.dialog.Multi_Dialog;
-import com.socioboard.lbroadpro.dialog.Radio_Dialog;
-import com.socioboard.lbroadpro.dialog.Single_Dialog;
-import com.socioboard.lbroadpro.dialog.Standard_Dialog;
 import com.socioboard.lbroadpro.fragments.Company_Profile;
 import com.socioboard.lbroadpro.fragments.Company_Updates;
 import com.socioboard.lbroadpro.fragments.Share;
@@ -94,6 +94,8 @@ public class MainActivity extends ActionBarActivity implements
 	private CharSequence mTitle;
 	
 	public static FragmentManager fragmentManager;
+	
+	public static FragmentManager mainfragmentManager;
 
 	private static FragmentManager mManager;
 	
@@ -104,18 +106,23 @@ public class MainActivity extends ActionBarActivity implements
 	private MultiSwipeRefreshLayout mSwipeRefreshLayout;
 
 	TextView current_user_name,current_user_headline;
-	ImageView curret_user_profilepic;
+	ImageView curret_user_profilepic,settings_view;
 
-	RelativeLayout addacount_view, settings_view, feedback_view;
+	RelativeLayout addacount_view,feedback_view;
 
 	CommonUtilss utills;
-	LinkedinManyLocalData db;
+	LinkedInMultipleLocaldata db;
 	
 	CommonUtilss utilss;
+	
+	int selected_fragment;
+	
+	static Boolean haspic=false;
 	
 	Dialog dialog;
 	private ProgressDialog pd;
 	Boolean isalreadyadded = false;
+	static Boolean isanotheruser=false;
 	
 	//This is the public API key of our application
 	private static final String API_KEY = ApplicationData.CONSUMER_KEY;
@@ -150,7 +157,8 @@ public class MainActivity extends ActionBarActivity implements
 	public static final String TAG_FIRSTNAME="firstName";
 	public static final String TAG_LASTNAME="lastName";
 	public static final String TAG_EMAILADDRESS="emailAddress";
-	public static final String TAG_PICTUREURL="pictureUrl";
+	public static final String TAG_PICTUREURL="pic"
+			+ "tureUrl";
 	public static final String TAG_ID="id";
 	public static final String TAG_HEADLINE="headline";
 	public static final String TAG__TOTAL="_total";
@@ -170,12 +178,6 @@ public class MainActivity extends ActionBarActivity implements
 		
 		mManager = getSupportFragmentManager();
 		fragmentManager= getSupportFragmentManager();
-		fragmentManager.addOnBackStackChangedListener(new OnBackStackChangedListener() {
-		        @Override
-		        public void onBackStackChanged() {
-		            if(getFragmentManager().getBackStackEntryCount() == 0) finish();
-		        }
-		    });
 		
 		accountList = new ArrayList<ModelUserDatas>();
 
@@ -185,9 +187,9 @@ public class MainActivity extends ActionBarActivity implements
 		mDrawerList_Left = (ListView) findViewById(R.id.left_drawer);
 		mDrawerTitles = getResources().getStringArray(R.array.drawer_titles);
 		mDrawerList_Right = (ListView) findViewById(R.id.right_drawer);
-
+		mainfragmentManager = getSupportFragmentManager();
 		utills = new CommonUtilss();
-		db = new LinkedinManyLocalData(getApplicationContext());
+		db = new LinkedInMultipleLocaldata(getApplicationContext());
 
 		acountNameArray.add("User Profile");
 		acountNameArray.add("Company Profiles");//+Company followers
@@ -232,7 +234,6 @@ public class MainActivity extends ActionBarActivity implements
 				super.onDrawerClosed(view); 
 				getSupportActionBar().setTitle(mTitle);
 				menuitem.findItem(R.id.action_settings).setVisible(true);
-				// invalidateOptionsMenu();
 
 			}
 
@@ -240,7 +241,6 @@ public class MainActivity extends ActionBarActivity implements
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
 				getSupportActionBar().setTitle(mDrawerTitle);
-				// invalidateOptionsMenu();
 
 			}
 		};
@@ -250,24 +250,24 @@ public class MainActivity extends ActionBarActivity implements
 
 		LayoutInflater inflater = getLayoutInflater();
 
-		final ViewGroup footer = (ViewGroup) inflater.inflate(R.layout.footer,mDrawerList_Left, false);
-
 		final ViewGroup headerR = (ViewGroup) inflater.inflate(R.layout.header,mDrawerList_Right, false);
-
 		final ViewGroup footerR = (ViewGroup) inflater.inflate(R.layout.footer,mDrawerList_Right, false);
+		
+		final ViewGroup footerL = (ViewGroup) inflater.inflate(R.layout.left_footer, mDrawerList_Left, false);
 
 		current_user_headline = (TextView) headerR.findViewById(R.id.currentname);
-		//curret_user_username = (TextView) headerR.findViewById(R.id.currentusername);
 		current_user_name = (TextView) headerR.findViewById(R.id.currentheaderline);
 		curret_user_profilepic = (ImageView) headerR.findViewById(R.id.current_profile_pic);
 
 		addacount_view = (RelativeLayout) footerR.findViewById(R.id.add_account);
-		settings_view = (RelativeLayout) footerR.findViewById(R.id.settings);
+		settings_view = (ImageView) footerR.findViewById(R.id.settings);
 		feedback_view = (RelativeLayout) footerR.findViewById(R.id.feedback);
 
-		//curret_user_username.setText(MainSingleTon.useremailid);
 		current_user_name.setText(MainSingleTon.username);
 		current_user_headline.setText(MainSingleTon.userheadline);
+		
+		System.out.println("Mainsingleton image "+MainSingleTon.userimage);
+		
 		curret_user_profilepic.setImageBitmap(utills.getBitmapFromString(MainSingleTon.userimage));
 
 		curret_user_profilepic.setOnClickListener(new OnClickListener() {
@@ -306,6 +306,7 @@ public class MainActivity extends ActionBarActivity implements
 		mDrawerList_Right.addFooterView(footerR, null, true); // true =
 																// clickable
 
+		mDrawerList_Left.addFooterView(footerL, null, true);
 		// Set width of drawer
 		DrawerLayout.LayoutParams lp = (DrawerLayout.LayoutParams) mDrawerList_Left
 				.getLayoutParams();
@@ -329,16 +330,33 @@ public class MainActivity extends ActionBarActivity implements
 				MainActivity.this, accountList));
 		// Set the list's click listener
 		mDrawerList_Right.setOnItemClickListener(new RightDrawerItemClickListener());
+		
+		mainfragmentManager = getSupportFragmentManager();
+		mainfragmentManager.beginTransaction()
+				.replace(R.id.main_content, new User_Profile()).commit();
+		
+//		if(MainSingleTon.isUnauthorized==true)
+//		{
+//			showCustomDialog();
+//		}
 
 	}
 	
 	protected void showCustomDialog() {
-		dialog = new Dialog(MainActivity.this,
-				android.R.style.Theme_Translucent);
+		dialog = new Dialog(MainActivity.this,android.R.style.Theme_Translucent);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCancelable(true);
 		dialog.setContentView(R.layout.webview_dialog);
 		
+		ImageView cancelbutton = (ImageView) dialog.findViewById(R.id.cancel_button);
+		
+		cancelbutton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+		});
 		final WebView webView = (WebView) dialog.findViewById(R.id.relogin_web_view);
 
 		    //Request focus for the webview
@@ -357,6 +375,7 @@ public class MainActivity extends ActionBarActivity implements
 		                  pd.dismiss();
 		              }
 		          }
+		          
 		        @Override
 		        public boolean shouldOverrideUrlLoading(WebView view, String authorizationUrl) {
 		            //This method will be called when the Auth proccess redirect to our RedirectUri.
@@ -402,7 +421,11 @@ public class MainActivity extends ActionBarActivity implements
 
 			db.getAllUsersData();
 			
-		dialog.show();
+		try {
+			dialog.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -456,6 +479,8 @@ public class MainActivity extends ActionBarActivity implements
 	 {
 	  Fragment fragment = null;
 
+	  selected_fragment=position;
+	  
 	  switch (position)
 	  {
 	  case 0:
@@ -480,8 +505,8 @@ public class MainActivity extends ActionBarActivity implements
 	  if (fragment != null)
 	  {
 	   // Insert the fragment by replacing any existing fragment
-	   FragmentManager fragmentManager = getSupportFragmentManager();
-	   fragmentManager.beginTransaction().replace(R.id.main_content, fragment)
+	 
+	   fragmentManager.beginTransaction().replace(R.id.main_content, fragment).addToBackStack(null)
 	   .commit();
 	  }
 
@@ -489,11 +514,10 @@ public class MainActivity extends ActionBarActivity implements
 	  if(mDrawerList_Left.isEnabled())
 	  {
 	   mDrawerList_Left.setItemChecked(position, true);
-	   if (position != 0)
-	   {
-	    setTitle(mDrawerTitles[position - 1]);
+	   
+	    setTitle(mDrawerTitles[position]);
 	    updateView(position, position, true,mDrawerList_Left);
-	   }
+	   
 	   mDrawerLayout.closeDrawer(mDrawerList_Left);
 	  }
 	  else
@@ -509,38 +533,22 @@ public class MainActivity extends ActionBarActivity implements
 
 	 }
 	 
-	 /**
-	  *  OnBackpress load the previous fragment
-	  * 
-	  */
-	 @Override
-	public void onBackPressed() {
-		 
-			if (mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-				mDrawerLayout.closeDrawer(Gravity.RIGHT);
-			}
-			else
-			if(fragmentManager.getBackStackEntryCount()>1)
-			{
-				fragmentManager.popBackStack();
-			}else
-			{
-				super.onBackPressed();
-			}	
-		}
+	
 
 	private class RightDrawerItemClickListener implements
 			ListView.OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView parent, View view, int position,
-				long id) {
+				long id) 
+		{
 			selectItemRight(position);
 		}
 	}
 
 	private void selectItemRight(final int position) {
 
-		if (position>0) {
+		if (position>0) 
+		{
 		
 			runOnUiThread(new Runnable() {
 				@Override
@@ -565,8 +573,40 @@ public class MainActivity extends ActionBarActivity implements
 					
 					current_user_name.setText(MainSingleTon.username);
 					current_user_headline.setText(MainSingleTon.userheadline);
-					curret_user_profilepic.setImageBitmap(utills
-							.getBitmapFromString(MainSingleTon.userimage));
+					curret_user_profilepic.setImageBitmap(utills.getBitmapFromString(MainSingleTon.userimage));
+					
+					 Fragment fragment = null;
+						
+					 switch (selected_fragment)
+					  {
+					  case 0:
+						  fragment = new User_Profile();
+						  break;
+						  
+					  case 1:
+					   fragment = new Company_Profile();
+					   break;
+					   
+					  case 2:
+					  
+					   fragment = new Company_Updates();
+					   break;
+					  case 3:
+					 
+					   fragment = new Share();
+					   break;
+					 
+					  }
+
+					  if (fragment != null)
+					  {
+					   // Insert the fragment by replacing any existing fragment
+					   FragmentManager fragmentManager = getSupportFragmentManager();
+					   fragmentManager.beginTransaction().replace(R.id.main_content, fragment)
+					   .commit();
+					  }
+					  
+					  mDrawerLayout.closeDrawer(mDrawerList_Right);
 				}
 			});
 		}
@@ -650,7 +690,7 @@ public class MainActivity extends ActionBarActivity implements
 
 		View v = mDrawerList.getChildAt(position
 				- mDrawerList.getFirstVisiblePosition());
-		TextView someText = (TextView) v.findViewById(R.id.item_new);
+		
 		Resources res = getResources();
 		String articlesFound = "";
 
@@ -658,33 +698,25 @@ public class MainActivity extends ActionBarActivity implements
 		case 1:
 			articlesFound = res.getQuantityString(
 					R.plurals.numberOfNewArticles, counter, counter);
-			someText.setBackgroundResource(R.drawable.new_apps);
+
 			break;
 		case 2:
 			articlesFound = res.getQuantityString(
 					R.plurals.numberOfNewArticles, counter, counter);
-			someText.setBackgroundResource(R.drawable.new_sales);
+
 			break;
 		case 3:
 			articlesFound = res.getQuantityString(
 					R.plurals.numberOfNewArticles, counter, counter);
-			someText.setBackgroundResource(R.drawable.new_blog);
+
 			break;
 		case 4:
 			articlesFound = res.getQuantityString(
 					R.plurals.numberOfNewArticles, counter, counter);
-			someText.setBackgroundResource(R.drawable.new_bookmark);
-			break;
-		case 5:
-			articlesFound = res.getQuantityString(
-					R.plurals.numberOfNewArticles, counter, counter);
-			someText.setBackgroundResource(R.drawable.new_community);
-			break;
-		}
 
-		someText.setText(articlesFound);
-		if (visible)
-			someText.setVisibility(View.VISIBLE);
+			break;
+		
+		}
 	}
 
 	@Override
@@ -747,89 +779,33 @@ public class MainActivity extends ActionBarActivity implements
 		anim.start();
 	}
 
-	/**
-	 * Sets the components of the standard dialog.
-	 *
-	 * @param title
-	 *            Title of the dialog
-	 * @param message
-	 *            Message of the dialog
-	 * @param negativeButton
-	 *            Text of negative Button
-	 * @param positiveButton
-	 *            Text of positive Button
-	 */
-	public static void showMyDialog(String title, String message,
-			String negativeButton, String positiveButton) {
-		Standard_Dialog newDialog = Standard_Dialog.newInstance(title, message,
-				negativeButton, positiveButton);
-		newDialog.show(mManager, "dialog");
-	}
-
-	/**
-	 * Sets the components of the traditional single-choice dialog.
-	 *
-	 * @param title
-	 *            Title of the dialog
-	 * @param dialogItems
-	 *            Content of the dialog
-	 * @param negativeButton
-	 *            Text of negative Button
-	 * @param positiveButton
-	 *            Text of positive Button
-	 */
-	public static void showMySingleDialog(String title,
-			ArrayList<String> dialogItems, String negativeButton,
-			String positiveButton) {
-		Single_Dialog newDialog = Single_Dialog.newInstance(title, dialogItems,
-				negativeButton, positiveButton);
-		newDialog.show(mManager, "dialog");
-	}
-
-	/**
-	 * Sets the components of the persistent single-choice dialog.
-	 *
-	 * @param title
-	 *            Title of the dialog
-	 * @param dialogItems
-	 *            Content of the dialog
-	 * @param negativeButton
-	 *            Text of negative Button
-	 * @param positiveButton
-	 *            Text of positive Button
-	 */
-	public static void showMyRadioDialog(String title,
-			ArrayList<String> dialogItems, String negativeButton,
-			String positiveButton) {
-		Radio_Dialog newDialog = Radio_Dialog.newInstance(title, dialogItems,
-				negativeButton, positiveButton);
-		newDialog.show(mManager, "dialog");
-	}
-
-	/**
-	 * Sets the components of the persistent multiple-choice dialog.
-	 *
-	 * @param title
-	 *            Title of the dialog
-	 * @param dialogItems
-	 *            Content of the dialog
-	 * @param negativeButton
-	 *            Text of negative Button
-	 * @param positiveButton
-	 *            Text of positive Button
-	 */
-	public static void showMyMultiDialog(String title,
-			ArrayList<String> dialogItems, String negativeButton,
-			String positiveButton) {
-		Multi_Dialog newDialog = Multi_Dialog.newInstance(title, dialogItems,
-				negativeButton, positiveButton);
-		newDialog.show(mManager, "dialog");
-	}
-
+	
+	 /**
+	  *  OnBackpress load the previous fragment
+	  * 
+	  */
+	 @Override
+	public void onBackPressed() {
+		 
+			if (mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) 
+			{
+				mDrawerLayout.closeDrawer(Gravity.RIGHT);
+			}
+			else
+			if(fragmentManager.getBackStackEntryCount()>0)
+			{
+				fragmentManager.popBackStack();
+			}else
+			{
+				finish();
+			}	
+		}
+	 
+	 
 	// Method to swipe fragment after click in main container
 	public static void swipeFragment(Fragment fragment)
 	{ 
-		fragmentManager.beginTransaction().replace(R.id.main_content, fragment).commit();
+		fragmentManager.beginTransaction().replace(R.id.main_content, fragment).addToBackStack(null).commit();
 	}
 	
 	/**
@@ -837,6 +813,7 @@ public class MainActivity extends ActionBarActivity implements
 	 */
 	private class PostRequestAsyncTask extends AsyncTask<String, Void, Boolean>{
 
+		String userId;
 	    @Override
 	    protected void onPreExecute(){
 	        pd = ProgressDialog.show(MainActivity.this, "", MainActivity.this.getString(R.string.loading),true);
@@ -845,7 +822,9 @@ public class MainActivity extends ActionBarActivity implements
 	    @Override
 	    protected Boolean doInBackground(String... urls) {
 	        if(urls.length>0){
-	            String url = urls[0];
+	            String url = urls[0];            
+	            System.out.println("user id = "+userId);
+	            
 	            HttpClient httpClient = new DefaultHttpClient();
 	            HttpPost httpost = new HttpPost(url);
 	            try{
@@ -865,7 +844,8 @@ public class MainActivity extends ActionBarActivity implements
 	                        if(expiresIn>0 && accessToken!=null){
 	                            Log.i("Authorize", "This is the access Token: "+accessToken+". It will expires in "+expiresIn+" secs");
 
-	                            accesstokenis = accessToken;
+                            	accesstokenis = accessToken;	
+	                           
 	                            //Calculate date of expiration
 	                            Calendar calendar = Calendar.getInstance();
 	                            calendar.add(Calendar.SECOND, expiresIn);
@@ -876,12 +856,12 @@ public class MainActivity extends ActionBarActivity implements
 	                    }
 	                }
 	            }catch(IOException e){
-	                Log.e("Authorize","Error Http response "+e.getLocalizedMessage());  
+	                Log.e("Authorize","IO exception "+e.getLocalizedMessage());  
 	            }
 	            catch (ParseException e) {
-	                Log.e("Authorize","Error Parsing Http response "+e.getLocalizedMessage());
+	                Log.e("Authorize","Parse exception "+e.getLocalizedMessage());
 	            } catch (JSONException e) {
-	                Log.e("Authorize","Error Parsing Http response "+e.getLocalizedMessage());
+	                Log.e("Authorize","JSON exception "+e.getLocalizedMessage());
 	            }
 	        }
 	        return false;
@@ -904,14 +884,16 @@ public class MainActivity extends ActionBarActivity implements
 	 *   ASyncTask for Fetching 
 	 *
 	 */
-	public class GetProfileDetails extends AsyncTask<Void, Void, Boolean>
+	public class GetProfileDetails extends AsyncTask<String, Void, Boolean>
 	{
 		String stringResponse;
 		String str_pictureUrl;
 		String imageString;
-		 
+		String userID;
+		String picUrl;
+		
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected Boolean doInBackground(String... params) {
 			
 			 try {
 		            HttpClient httpclient = new DefaultHttpClient();  // the http-client, that will send the request
@@ -938,46 +920,72 @@ public class MainActivity extends ActionBarActivity implements
 		        				
 		                    	JSONObject json = new JSONObject(stringResponse);
 		        				
-		        				String str_firstName = json.getString(TAG_FIRSTNAME);
-		        				String str_lastName = json.getString(TAG_LASTNAME);
-		        				String str_emailAddress = json.getString(TAG_EMAILADDRESS);
-		        				String picUrl = json.getString(TAG_PICTUREURL);
-		        				String str_headline = json.getString(TAG_HEADLINE);
-		        				String str_pictureUrl = json.getString(TAG_PICTUREURL);
-		        				String str_id = json.getString(TAG_ID);
-		        				
-		        				// Checking if user is already added
-		        				if(db.getUserData(str_id)!=null){
-		        					
-		        					isalreadyadded = true;
-		        					
-		        					return false;
-		        					
-		        				}else{
-		        					
-		        					isalreadyadded = false;
-		        					
-		        				ModelUserDatas datas = new ModelUserDatas();
-		        				datas.setUserAcessToken(accesstokenis);
-		        				datas.setUserid(str_id);
-		        				datas.setUsername(str_firstName);
-		        				datas.setUserimage(imageString);
-		        				datas.setLastname(str_lastName);
-		        				datas.setUseremailid(str_emailAddress);
-		        				datas.setUserheadline(str_headline);
-		        				db.addNewUserAccount(datas);
-		        				
-		        				accountList.add(datas);
-		       
-		        				MainSingleTon.userdetails.put(str_id, datas);
-		        				MainSingleTon.useridlist.add(str_id);
-		        				
-		        				SharedPreferences lifesharedpref=getSharedPreferences("LinkedinBoard", Context.MODE_PRIVATE);
-		        				SharedPreferences.Editor editor=lifesharedpref.edit();
-		        				editor.putString("userid", str_id);
-		        				editor.commit();
-		        				}
+		                    	String str_id = json.getString(TAG_ID);
+		                    	
+		                    
+		                    		String str_firstName = json.getString(TAG_FIRSTNAME);
+			        				String str_lastName = json.getString(TAG_LASTNAME);
+			        				String str_emailAddress = json.getString(TAG_EMAILADDRESS);
+			        				String str_headline = json.getString(TAG_HEADLINE);
+			        				
+			        				if(json.has(TAG_PICTUREURL))
+			        				{
+			        					haspic=true;
+			        					picUrl  = json.getString(TAG_PICTUREURL);
+			        				}else
+			        				{
+			        					haspic=false;
+			        					Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.user_default);
+			        					ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			        					bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			        					imageString = Base64.encode(stream.toByteArray());
+			        				}
+			        				
+			        				// Checking if user is already added
+			        				if(db.getUserData(str_id)!=null){
+			        					
+			        					isalreadyadded = true;
+			        					return false;
+			        				}else{
+			        					
+			        					isalreadyadded = false;
+			        					
+			        				ModelUserDatas datas = new ModelUserDatas();
+			        				datas.setUserAcessToken(accesstokenis);
+			        				datas.setUserid(str_id);
+			        				datas.setUsername(str_firstName);
+			        				
+			        				if(haspic)
+			        				{
+			        					str_pictureUrl = picUrl;
+				        				imageString = utilss.getImageBytearray(str_pictureUrl);
+				        				datas.setUserimage(imageString);
+			        				}else
+			        				{
+			        					datas.setUserimage(imageString);
+			        				}
+			        				
+			        				datas.setLastname(str_lastName);
+			        				datas.setUseremailid(str_emailAddress);
+			        				datas.setUserheadline(str_headline);
+			        				
+			        				db.addNewUserAccount(datas);
+			        				
+			        				accountList.add(datas);
+			       
+			        				MainSingleTon.userdetails.put(str_id, datas);
+			        				MainSingleTon.useridlist.add(str_id);
+			        				
+			        				SharedPreferences lifesharedpref=getSharedPreferences("LinkedinBoard", Context.MODE_PRIVATE);
+			        				SharedPreferences.Editor editor=lifesharedpref.edit();
+			        				editor.putString("userid", str_id);
+			        				editor.commit();
+			        				
+			        				return true;
+		                    	}
+		                    	
 		        			} catch (JSONException e){
+		        				e.printStackTrace();
 		        			}
 		                    
 		                   
@@ -1034,14 +1042,29 @@ public class MainActivity extends ActionBarActivity implements
 		 
 		 if(!result)
 		 {
-				if(isalreadyadded)
-				{
+			/* if(isanotheruser)
+			 {
+				 dialog.dismiss();
+				 Toast.makeText(MainActivity.this, "Login Success", Toast.LENGTH_SHORT).show();
+			 }*/
+			
+			 if(isalreadyadded)
+			 {
+			 	try {
 					Toast.makeText(MainActivity.this, "Already added !!", Toast.LENGTH_SHORT).show();
-				}else
-				{
-					Toast.makeText(MainActivity.this, "Authorization Problem / Server Problem", Toast.LENGTH_SHORT).show();
+					dialog.dismiss();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				
+			 }else
+			 {
+				try {
+					Toast.makeText(MainActivity.this, "Authorization Problem / Server Problem", Toast.LENGTH_SHORT).show();
+					dialog.dismiss();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			 }
 			}
 		}
 	}
@@ -1062,6 +1085,12 @@ public class MainActivity extends ActionBarActivity implements
 			accountList.add(model);
 		}
 		accountAdapter.notifyDataSetChanged();
+	}
+	
+	public void sessionexpired(String usedId)
+	{
+		showCustomDialog();
+		
 	}
 	
 }

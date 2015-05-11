@@ -12,7 +12,10 @@ public class ConstantUrl {
 			+ "current-status,summary,positions,main-address,location,distance,specialties,proposal-comments,"
 			+ "associations,honors,interests,educations,phone-numbers,im-accounts,twitter-accounts,date-of-birth,"
 			+ "email-address)?oauth2_access_token=";
-
+	
+	//public static String Get_NetworkUserUpdate_URL = "https://api.linkedin.com/v1/people/id=";//YLGud7amoM
+	//public static String Get_NetworkUpdates_URL = "https://api.linkedin.com/v1/people/~/network/updates";
+	
 	public static String Get_JobSearchTitle_URL = "https://api.linkedin.com/v1/job-search?job-title=";
 	public static String Get_JobSearchKeyword_URL = "https://api.linkedin.com/v1/job-search?keywords=";
 

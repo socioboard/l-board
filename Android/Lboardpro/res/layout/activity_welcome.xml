@@ -3,32 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splash_screen"
+    android:background="@drawable/login_bg"
     android:orientation="vertical" >
 
     <!-- android:fontFamily="sans-serif-condensed" -->
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp"
-        android:text="Sign in to personalize your inboardPro "
-        android:fontFamily="sans-serif-condensed"
-        android:textColor="@android:color/white"
-        android:textSize="17sp" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView2"
-        android:layout_centerHorizontal="true"
-        android:textColor="@android:color/white"
-        android:fontFamily="sans-serif-condensed"
-        android:text="experience and explore"
-        android:textSize="17sp" />
 
     <Button
         android:id="@+id/signin"
@@ -37,8 +15,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="126dp"
-        android:background="@drawable/buttonbg"
-        android:text="Sign In"
+        android:background="@drawable/connect_with_linkedin"
         android:fontFamily="sans-serif-condensed"
         android:textSize="14sp"
         android:textStyle="bold" />
